@@ -1,0 +1,22 @@
+Algoritm
+Följande algoritm ska användas i programmet:
+
+Initialisering av världen
+Så länge användaren inte valt att avsluta
+Skriv ut världen
+Skriv ut menyn
+Läs in användarens val
+Om nytt steg
+Uppdatera världen en generation
+Krav på implementationen
+Programmet ska använda sig av funktioner (dvs fler än de ovan nämnda) och den givna egendefinierade datastrukturen cell.
+
+Krav på lösningen
+Här nedan finns det ett antal krav som programmet ska uppfylla av praktiska skäl:
+
+All utskrift på skärm ska se exakt ut som i det tillhandahållna körbara programmet.
+Funktionerna initField, clearField, getStartStateChoice, loadGlider, loadSemaphore och loadCustom är fullständiga och ska inte ändras.
+I din inlämnade lösning ska världen ha 20 x 20 celler.
+Källkodsfilen ska heta ou3.c.
+I den beskrivande texten i filen ska du skriva ditt namn och din cs-användare.
+Programmet ska kunna kompileras med kompilatorn gcc med flaggorna –Wall och –std=c99.
