@@ -10,7 +10,7 @@
  * Author: Jonathan Broms
  * CS username: oi21jbs
  * Date: 2021-10-18
- * Limitations:  No validation of input. Is trash...
+ * Limitations:  No validation of input. 
  */
 
 #include <stdio.h>
@@ -46,7 +46,7 @@ char getStartStateChoice(void);
  *              in each step.
  */
 
-int main(void) {
+int main(void) {                  /* ATT: Main was originally completely void.*/
                                   /*
                                   To-do list:
                                   * Loop this? How do I "transfer" choice
@@ -106,6 +106,10 @@ void initField(const int rows, const int cols, cell field[rows][cols]) {
             loadCustom(rows, cols, field);
             break;
     }
+    
+    
+    /*ATT: This for-loop is made by me.*/
+    
     for (int c = 0; c < cols; c++) {        /* This belongs in a separate  */
       printf("\n" );                        /* function "worldInit" or smt.*/
       for (int r = 0; r < rows; r++) {
@@ -202,7 +206,7 @@ void loadRandom(const int rows, const int cols, cell field[rows][cols]) {
 
   srand(time(NULL));
     for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
+      for (int c = 0; c < cols; c++) {   /* ATT: This function is made by me.*/
         field[r][c].current = rand()% 2; /* Maybe a bad idea to not use */
         if (field[r][c].current >= 1 ) { /* a designated variable? */
           field[r][c].current = ALIVE;
