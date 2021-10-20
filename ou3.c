@@ -10,7 +10,7 @@
  * Author: Jonathan Broms
  * CS username: oi21jbs
  * Date: 2021-10-18
- * Limitations:  No validation of input. 
+ * Limitations:  No validation of input. Is trash...
  */
 
 #include <stdio.h>
@@ -34,10 +34,11 @@ void initField(const int rows, const int cols, cell field[rows][cols]);
 void clearField(const int rows, const int cols, cell field[rows][cols]);
 void loadGlider(const int rows, const int cols, cell field[rows][cols]);
 void loadSemaphore(const int rows, const int cols, cell field[rows][cols]);
-void loadRandom(const int rows, const int cols, cell field[rows][cols]);
 void loadCustom(const int rows, const int cols, cell field[rows][cols]);
 char getStartStateChoice(void);
-
+/*Functions that I have made*/
+void loadRandom(const int rows, const int cols, cell field[rows][cols]);
+void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]);
 
 /* Function:    main
  * Description: Start and run simulations, interact with the user.
@@ -46,7 +47,8 @@ char getStartStateChoice(void);
  *              in each step.
  */
 
-int main(void) {                  /* ATT: Main was originally completely void.*/
+int main(void) {
+
                                   /*
                                   To-do list:
                                   * Loop this? How do I "transfer" choice
@@ -58,12 +60,22 @@ int main(void) {                  /* ATT: Main was originally completely void.*/
                                   * Tidy up the random-function.
                                   */
 
+
+  srand(time(NULL));
   const int rows = 20;
   const int cols = 20;
   cell field[rows][cols];
 
   do {
     initField(rows, cols, field);
+
+    for (int c = 0; c < cols; c++) {        /* This belongs in a separate  */
+      printf("\n" );                        /* function "worldInit" or smt.*/
+      for (int r = 0; r < rows; r++) {
+          printf("%c ", field[c][r].current);
+      }
+    }
+
 
     printf("\n");
   } while(getStartStateChoice() != '\n');
@@ -105,21 +117,6 @@ void initField(const int rows, const int cols, cell field[rows][cols]) {
         default:
             loadCustom(rows, cols, field);
             break;
-    }
-    
-    
-    /*ATT: This for-loop is made by me.*/
-    
-    for (int c = 0; c < cols; c++) {        /* This belongs in a separate  */
-      printf("\n" );                        /* function "worldInit" or smt.*/
-      for (int r = 0; r < rows; r++) {
-        if (field[c][r].current == ALIVE) {
-          printf("X ");
-        }
-        else {
-          printf(". ");
-        }
-      }
     }
 }
 
@@ -204,11 +201,10 @@ void loadSemaphore(const int rows, const int cols, cell field[rows][cols]) {
 
 void loadRandom(const int rows, const int cols, cell field[rows][cols]) {
 
-  srand(time(NULL));
     for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {   /* ATT: This function is made by me.*/
-        field[r][c].current = rand()% 2; /* Maybe a bad idea to not use */
-        if (field[r][c].current >= 1 ) { /* a designated variable? */
+      for (int c = 0; c < cols; c++) {
+        field[r][c].current = rand()% 2;     /* Maybe a bad idea to not use */
+        if (field[r][c].current >= 1 ) {     /* a designated variable? */
           field[r][c].current = ALIVE;
         }
       }
@@ -233,4 +229,36 @@ void loadCustom(const int rows, const int cols, cell field[rows][cols]) {
         scanf("%d,%d", &r, &c);
         field[r][c].current = ALIVE;
     } while (getchar() != '\n');
+}
+
+
+
+/* Stupid pseudocode. */
+/* ATT: make sure it only counts inside the given field and not outside. */
+void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]) {
+
+  int aliveNeighbor;
+
+  for (int r = 0; r < rows; r++) {
+    for (int c = 0; c < cols; c++) {
+
+      /* aliveNeighbor = field[r][c].current ???*/
+
+      if (aliveNeighbor == (0 || 1)) {
+        field[r][c].next = DEAD;
+      }
+
+      else if (aliveNeighbor == (2 || 3)) {
+        field[r][c].next = ALIVE;
+      }
+
+      else if (aliveNeighbor >= 4 ) {
+        field[r][c].next = DEAD;
+      }
+
+      else if (aliveNeighbor == 3) {
+        field[r][c].next = ALIVE;
+      }
+    }
+  }
 }
