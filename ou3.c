@@ -241,7 +241,13 @@ void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]
 
   for (int r = 0; r < rows; r++) {
     for (int c = 0; c < cols; c++) {
+        
+      /*
+      only read the neighbor if r+1 < rows (-1?) && c+1 < cols (-1?)
+                                r-1 > rows   (?) && c-1 > cols   (?)
 
+      
+      */
       /* aliveNeighbor = field[r][c].current ???*/
 
       if (aliveNeighbor == (0 || 1)) {
