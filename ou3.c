@@ -36,7 +36,7 @@ void loadGlider(const int rows, const int cols, cell field[rows][cols]);
 void loadSemaphore(const int rows, const int cols, cell field[rows][cols]);
 void loadCustom(const int rows, const int cols, cell field[rows][cols]);
 char getStartStateChoice(void);
-/*Functions that I have made*/
+/* Functions that I have made below: */
 void loadRandom(const int rows, const int cols, cell field[rows][cols]);
 void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]);
 
@@ -55,7 +55,7 @@ int main(void) {
                                   from menu back to main function?
                                   Something something while thing != '\n'
                                   * Make the CURRENT -> NEXT work....
-                                  * Make use of ALIVE, DEAD instead of printfs.
+                                X * Make use of ALIVE, DEAD instead of printfs.
                                   * Write out field in separate function?
                                   * Tidy up the random-function.
                                   */
