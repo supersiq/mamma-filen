@@ -10,7 +10,7 @@
  * Author: Jonathan Broms
  * CS username: oi21jbs
  * Date: 2021-10-18
- * Limitations:  No validation of input. Is trash...
+ * Limitations:  No validation of input. 
  */
 
 #include <stdio.h>
