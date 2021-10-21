@@ -10,7 +10,7 @@
  * Author: Jonathan Broms
  * CS username: oi21jbs
  * Date: 2021-10-18
- * Limitations:  No validation of input. 
+ * Limitations:  No validation of input. Is trash...
  */
 
 #include <stdio.h>
@@ -30,15 +30,21 @@ typedef struct{
 } cell;
 
 /* Declaration of functions */
+/* initField - poor variable name? */
 void initField(const int rows, const int cols, cell field[rows][cols]);
 void clearField(const int rows, const int cols, cell field[rows][cols]);
 void loadGlider(const int rows, const int cols, cell field[rows][cols]);
 void loadSemaphore(const int rows, const int cols, cell field[rows][cols]);
 void loadCustom(const int rows, const int cols, cell field[rows][cols]);
 char getStartStateChoice(void);
-/* Functions that I have made below: */
+/*Functions that I have made*/
 void loadRandom(const int rows, const int cols, cell field[rows][cols]);
-void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]);
+void aliveNeighbourCount (const int rows, const int cols,
+                                cell field[rows][cols]);
+char iterationOrExit(void);
+void printField(const int rows, const int cols, cell field[rows][cols]);
+void calculateField(const int rows, const int cols, cell field[rows][cols]);
+
 
 /* Function:    main
  * Description: Start and run simulations, interact with the user.
@@ -47,18 +53,24 @@ void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]
  *              in each step.
  */
 
+
+/******************************************************************************/
 int main(void) {
 
-                                  /*
-                                  To-do list:
-                                  * Loop this? How do I "transfer" choice
-                                  from menu back to main function?
-                                  Something something while thing != '\n'
-                                  * Make the CURRENT -> NEXT work....
-                                X * Make use of ALIVE, DEAD instead of printfs.
-                                  * Write out field in separate function?
-                                  * Tidy up the random-function.
-                                  */
+                              /*
+                              To-do list:
+                            X * Loop this? How do I "transfer" choice
+                                from menu back to main function?
+                                Something something while thing != '\n'
+            Is this needed?   * Make the CURRENT -> NEXT work....
+                            X * Make use of ALIVE, DEAD instead of printfs.
+                              * Write out field in separate function?
+                              * Tidy up the random-function.
+                              * Swap function for current and next?
+                              * Include "Select one of the following options:
+                                          (enter) Step
+                                          (any) Exit"
+                              */
 
 
   srand(time(NULL));
@@ -66,21 +78,98 @@ int main(void) {
   const int cols = 20;
   cell field[rows][cols];
 
+  initField(rows, cols, field);
+
+
   do {
-    initField(rows, cols, field);
-
-    for (int c = 0; c < cols; c++) {        /* This belongs in a separate  */
-      printf("\n" );                        /* function "worldInit" or smt.*/
-      for (int r = 0; r < rows; r++) {
-          printf("%c ", field[c][r].current);
-      }
-    }
-
+    printField(rows, cols, field);
+    calculateField(rows, cols, field);
 
     printf("\n");
-  } while(getStartStateChoice() != '\n');
+  } while(iterationOrExit() == '\n');
 
     return 0;
+}
+
+
+/******************************************************************************/
+
+
+void printField(const int rows, const int cols, cell field[rows][cols]) {
+
+    for (int c = 0; c < cols; c++) {
+      printf("\n" );
+      for (int r = 0; r < rows; r++) {
+        printf("%c ", field[c][r].current);
+      }
+    }
+    printf("\n");
+}
+
+
+
+char iterationOrExit(void) {
+    int ch;
+
+    printf("Press enter to iterate new generation.\nAny other key to exit.");
+
+    ch = getchar();
+
+    /* Ignore following newline */ /* What does this mean? */
+    if (ch != '\n') {
+        getchar();
+    }
+    return ch;
+}
+
+void calculateField(const int rows, const int cols, cell field[rows][cols]) {
+
+  int livingNeighbor;
+  for (int c = 0; c < cols; c++) {
+    for (int r = 0; r < rows; r++) {
+      if (field[r][c].current == ALIVE) {
+        livingNeighbor = -1; /* This resets the value for each cell check. */
+                             /* -1 To negate it's own status.              */
+
+        for(int colInGrid = -1; colInGrid < 2; colInGrid++) {
+          for(int rowInGrid = -1; rowInGrid < 2; rowInGrid++) {
+            if (field[r+rowInGrid][c+colInGrid].current == ALIVE) {
+              if ((rowInGrid >= 0 && rowInGrid < rows)
+              && ((colInGrid >= 0) && colInGrid < cols)) {
+              livingNeighbor++;
+              }
+            }
+          }
+        }
+
+        /* Debugging line. */
+        printf("(%d,%d)neighbors=%d  ",r , c,  livingNeighbor);
+
+        if (livingNeighbor <= 1) {    /* This kills the current cell, and when*/
+          field[r][c].current = DEAD; /* the next one is counted it sees dead.*/
+        }                             /* Causing a calculation error.         */
+        else if ( livingNeighbor <= 3) {
+          field[r][c].current = ALIVE;
+        }
+        else if ( livingNeighbor >= 4) {
+          field[r][c].current = DEAD;
+        }
+      }
+      else {
+        livingNeighbor = 0;
+        for(int rowInGrid = -1; rowInGrid < 2; rowInGrid++) {
+          for(int colInGrid = -1; colInGrid < 2; colInGrid++) {
+            if (field[r+rowInGrid][c+colInGrid].current == ALIVE) {
+              livingNeighbor++;
+            }
+          }
+        }
+        if (livingNeighbor == 3) {
+          field[r][c].current = ALIVE;
+        }
+      }
+    }
+  }
 }
 
 
@@ -233,38 +322,40 @@ void loadCustom(const int rows, const int cols, cell field[rows][cols]) {
 
 
 
-/* Stupid pseudocode. */
+/* Stupid pseudocode of what is probably more than one functions. */
+
 /* ATT: make sure it only counts inside the given field and not outside. */
-void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]) {
 
-  int aliveNeighbor;
-
-  for (int r = 0; r < rows; r++) {
-    for (int c = 0; c < cols; c++) {
-        
-      /*
-      only read the neighbor if r+1 < rows (-1?) && c+1 < cols (-1?)
-                                r-1 > rows   (?) && c-1 > cols   (?)
-
-      
-      */
-      /* aliveNeighbor = field[r][c].current ???*/
-
-      if (aliveNeighbor == (0 || 1)) {
-        field[r][c].next = DEAD;
-      }
-
-      else if (aliveNeighbor == (2 || 3)) {
-        field[r][c].next = ALIVE;
-      }
-
-      else if (aliveNeighbor >= 4 ) {
-        field[r][c].next = DEAD;
-      }
-
-      else if (aliveNeighbor == 3) {
-        field[r][c].next = ALIVE;
-      }
-    }
-  }
-}
+//void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]) {
+//
+//  int aliveNeighbor;
+//
+//  for (int r = 0; r < rows; r++) {
+//    for (int c = 0; c < cols; c++) {
+//
+//      /*
+//      only read in aliveNeighbor if r+1 < rows (-1?) && c+1 < cols (-1?)
+//                                    r-1 > rows   (?) && c-1 > cols   (?)
+//
+//
+//      */
+//      /* aliveNeighbor = field[r][c].current ???*/
+//
+//      if (aliveNeighbor == (0 || 1)) {
+//        field[r][c].next = DEAD;
+//      }
+//
+//      else if (aliveNeighbor == (2 || 3)) {
+//        field[r][c].next = ALIVE;
+//      }
+//
+//      else if (aliveNeighbor >= 4 ) {
+//        field[r][c].next = DEAD;
+//      }
+//
+//      else if (aliveNeighbor == 3) {
+//        field[r][c].next = ALIVE;
+//      }
+//    }
+//  }
+//}
