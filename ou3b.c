@@ -2,7 +2,6 @@
  * Programmeringsteknik med C och Matlab
  * Fall 21
  * Assignment 3
-
  * File:         ou3.c
  * Description:  A simple implementation of Conway's Game of Life. Lets the user
  *               choose initial configuration. Then let them step or exit.
@@ -10,71 +9,40 @@
  * Author: Jonathan Broms
  * CS username: oi21jbs
  * Date: 2021-10-18
- * Limitations:  No validation of input. Is trash...
+ * Limitations:  No validation of input.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
 /* Constants, representation of states */
 #define ALIVE 'X'
 #define DEAD '.'
-
-
-
 /* Declaration of data structure */
 typedef struct{
     char current;
     char next;
 } cell;
-
 /* Declaration of functions */
-/* initField - poor variable name? */
 void initField(const int rows, const int cols, cell field[rows][cols]);
 void clearField(const int rows, const int cols, cell field[rows][cols]);
 void loadGlider(const int rows, const int cols, cell field[rows][cols]);
 void loadSemaphore(const int rows, const int cols, cell field[rows][cols]);
 void loadCustom(const int rows, const int cols, cell field[rows][cols]);
 char getStartStateChoice(void);
-/*Functions that I have made*/
+/*Functions that I have added*/
 void loadRandom(const int rows, const int cols, cell field[rows][cols]);
-void aliveNeighbourCount (const int rows, const int cols,
-                                cell field[rows][cols]);
 char iterationOrExit(void);
 void printField(const int rows, const int cols, cell field[rows][cols]);
 void calculateField(const int rows, const int cols, cell field[rows][cols]);
-void fieldStateChange (const int rows, const int cols, cell field[rows][cols]);
+void fieldStateChange(const int rows, const int cols, cell field[rows][cols]);
 void clearNextField(const int rows, const int cols, cell field[rows][cols]);
-
-
-
 /* Function:    main
  * Description: Start and run simulations, interact with the user.
  *              Lets the user choose initial structure and whether to step
  *              or exit. Writes information to the user, and the game field
  *              in each step.
  */
-
-
-/******************************************************************************/
 int main(void) {
-
-                              /*
-                              To-do list:
-                            X * Loop this? How do I "transfer" choice
-                                from menu back to main function?
-                                Something something while thing != '\n'
-            Is this needed?   * Make the CURRENT -> NEXT work....
-                            X * Make use of ALIVE, DEAD instead of printfs.
-                              * Write out field in separate function?
-                              * Tidy up the random-function.
-                              * Swap function for current and next?
-                              * Include "Select one of the following options:
-                                          (enter) Step
-                                          (any) Exit"
-                              */
-
 
   srand(time(NULL));
   const int rows = 20;
@@ -83,54 +51,62 @@ int main(void) {
 
   initField(rows, cols, field);
 
-
   do {
     printField(rows, cols, field);
     clearNextField(rows, cols, field);
     calculateField(rows, cols, field);
     fieldStateChange(rows, cols, field);
-    printf("\n");
   } while(iterationOrExit() == '\n');
 
-    return 0;
+  return 0;
 }
-
-
-/******************************************************************************/
-
-
+/* Function:    printField
+ * Description: Renders a visualization of the cell state with chars 'X' and '.'
+ * Input:       rows - the number of rows in the field
+ *              cols - the number of columns in the field
+ *              field - the field array
+ * Output:      The fun part of the whole program.
+ */
 void printField(const int rows, const int cols, cell field[rows][cols]) {
-
-    for (int c = 0; c < cols; c++) {
-      printf("\n" );
-      for (int r = 0; r < rows; r++) {
-        printf("%c ", field[c][r].current);
-      }
+  for (int c = 0; c < cols; c++) {
+    for (int r = 0; r < rows; r++) {
+      printf("%c ", field[c][r].current);
     }
-    printf("\n");
+    printf("\n" );
+  }
 }
-
+/* Function:    iterationOrExit
+ * Description: This function asks for the procession when field is rendered.
+ * Output:      A char that either continues or terminates(exits) the program.
+ */
 char iterationOrExit(void) {
     int ch;
-
-    printf("Press enter to iterate new generation.\nAny other key to exit.");
-
+    printf("Select one of the following options:\n(enter) Step\n(any) Exit\n");
     ch = getchar();
-
-    /* Ignore following newline */ /* What does this mean? */
     if (ch != '\n') {
         getchar();
     }
     return ch;
 }
-
+/* Function:    calculateField
+ * Description: This function goes through every cell within the field.
+ *
+ *              A sort of sub-function within, checks the neigboring cells to
+ *              those alive.
+ *                If the neigboring cell fills the criteria for generating
+ *              living status it's "next" value is set to alive.
+ *              In any other, the cell's next status is set to dead.
+ *
+ * Input:       rows - the number of rows in the field
+ *              cols - the number of columns in the field
+ *              field - the field array
+ */
 void calculateField(const int rows, const int cols, cell field[rows][cols]) {
-
   int livingNeighbor;
   for (int c = 0; c < cols; c++) {
     for (int r = 0; r < rows; r++) {
       if (field[r][c].current == ALIVE) {
-        livingNeighbor = -1;                  /* Because cell counts itself.  */
+        livingNeighbor = -1;              /*    <- Because cell counts itself.*/
         for(int colInGrid = -1; colInGrid < 2; colInGrid++) {
           for(int rowInGrid = -1; rowInGrid < 2; rowInGrid++) {
             if ((field[r+rowInGrid][c+colInGrid].current == ALIVE)
@@ -139,9 +115,8 @@ void calculateField(const int rows, const int cols, cell field[rows][cols]) {
               livingNeighbor++;
             }
           }
-        }
-
-        if (livingNeighbor <= 1) {
+        }                                 /* The following statements are     */
+        if (livingNeighbor <= 1) {        /* based on the game rules.         */
           field[r][c].next = DEAD;
         }
         else if ( livingNeighbor <= 3) {
@@ -169,26 +144,34 @@ void calculateField(const int rows, const int cols, cell field[rows][cols]) {
     }
   }
 }
-
-void fieldStateChange (const int rows, const int cols, cell field[rows][cols]) {
+/* Funtction:   fieldStateChange
+ * Description: This function "moves" the field state one step forward.
+ * Input:       rows - the number of rows in the field
+ *              cols - the number of columns in the field
+ *              field - the field array
+ * Output:      The field array is updated.
+ */
+void fieldStateChange(const int rows, const int cols, cell field[rows][cols]) {
   for (int r = 0 ; r < rows ; r++) {
       for (int c = 0 ; c < cols ; c++) {
-
           field[r][c].current = field[r][c].next;
       }
   }
 }
-
+/* Function:    clearNextField
+ * Description: This function gives a clean "next" state.
+ * Input:       rows - the number of rows in the field
+ *              cols - the number of columns in the field
+ *              field - the field array
+ * Output:      A clean slate for the next iteration to put new values in.
+ */
 void clearNextField(const int rows, const int cols, cell field[rows][cols]) {
-
     for (int r = 0 ; r < rows ; r++) {
         for (int c = 0 ; c < cols ; c++) {
             field[r][c].next = DEAD;
         }
     }
 }
-
-
 /* Function:    initField
  * Description: Loads a structure that the user selects
  * Input:       rows - the number of rows in the field
@@ -285,25 +268,6 @@ void loadSemaphore(const int rows, const int cols, cell field[rows][cols]) {
     field[8][2].current = ALIVE;
     field[8][3].current = ALIVE;
 }
-/* Function:    loadRandom
- * Description: Inserts a random structure into the field.
- * Input:       rows - the number of rows in the field
- *              cols - the number of columns in the field
- *              field - the field array
- * Output:      The field array is updated. There is a 50 % chance that a cell
- *              is alive.
- */
-void loadRandom(const int rows, const int cols, cell field[rows][cols]) {
-
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
-        field[r][c].current = rand()% 2;     /* Maybe a bad idea to not use */
-        if (field[r][c].current >= 1 ) {     /* a designated variable? */
-          field[r][c].current = ALIVE;
-        }
-      }
-    }
-}
 /* Function:    loadCustom
  * Description: Lets the user specify a structure that then is inserted into
  *              the field.
@@ -320,4 +284,23 @@ void loadCustom(const int rows, const int cols, cell field[rows][cols]) {
         scanf("%d,%d", &r, &c);
         field[r][c].current = ALIVE;
     } while (getchar() != '\n');
+}
+/* Function:    loadRandom
+* Description: Inserts a random structure into the field.
+* Input:       rows - the number of rows in the field
+*              cols - the number of columns in the field
+*              field - the field array
+* Output:      The field array is updated. There is a 50 % chance that a cell
+*              is alive.
+*/
+void loadRandom(const int rows, const int cols, cell field[rows][cols]) {
+
+  for (int r = 0; r < rows; r++) {
+    for (int c = 0; c < cols; c++) {
+      field[r][c].current = rand()% 2;
+      if (field[r][c].current >= 1 ) {
+        field[r][c].current = ALIVE;
+      }
+    }
+  }
 }
