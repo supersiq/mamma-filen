@@ -44,6 +44,9 @@ void aliveNeighbourCount (const int rows, const int cols,
 char iterationOrExit(void);
 void printField(const int rows, const int cols, cell field[rows][cols]);
 void calculateField(const int rows, const int cols, cell field[rows][cols]);
+void fieldStateChange (const int rows, const int cols, cell field[rows][cols]);
+void clearNextField(const int rows, const int cols, cell field[rows][cols]);
+
 
 
 /* Function:    main
@@ -83,8 +86,9 @@ int main(void) {
 
   do {
     printField(rows, cols, field);
+    clearNextField(rows, cols, field);
     calculateField(rows, cols, field);
-
+    fieldStateChange(rows, cols, field);
     printf("\n");
   } while(iterationOrExit() == '\n');
 
@@ -105,8 +109,6 @@ void printField(const int rows, const int cols, cell field[rows][cols]) {
     }
     printf("\n");
 }
-
-
 
 char iterationOrExit(void) {
     int ch;
@@ -134,22 +136,12 @@ void calculateField(const int rows, const int cols, cell field[rows][cols]) {
             if ((field[r+rowInGrid][c+colInGrid].current == ALIVE)
             && (r+rowInGrid >= 0 && r+rowInGrid < rows)
             && ((c+colInGrid >= 0) && c+colInGrid < cols)) {
-
-
-//              if ((r+rowInGrid >= 0 && r+rowInGrid < 19)
-//              && ((c+colInGrid >= 0) && c+colInGrid < 19))
-              printf("(%d,%d)looked at (%d,%d) and it is alive.\n", r, c, r+rowInGrid, c+colInGrid );
-//              livingNeighbor++;
-
-
+              livingNeighbor++;
             }
           }
         }
 
-        /* Debugging line. */
-  //      printf("(%d,%d)neighbors=%d  ",r , c,  livingNeighbor);
-
-        if (livingNeighbor == 1) {
+        if (livingNeighbor <= 1) {
           field[r][c].next = DEAD;
         }
         else if ( livingNeighbor <= 3) {
@@ -163,7 +155,9 @@ void calculateField(const int rows, const int cols, cell field[rows][cols]) {
         livingNeighbor = 0;
         for(int rowInGrid = -1; rowInGrid < 2; rowInGrid++) {
           for(int colInGrid = -1; colInGrid < 2; colInGrid++) {
-            if (field[r+rowInGrid][c+colInGrid].next == ALIVE) {
+            if ((field[r+rowInGrid][c+colInGrid].current == ALIVE)
+            && (r+rowInGrid >= 0 && r+rowInGrid < rows)
+            && ((c+colInGrid >= 0) && c+colInGrid < cols)) {
               livingNeighbor++;
             }
           }
@@ -174,6 +168,24 @@ void calculateField(const int rows, const int cols, cell field[rows][cols]) {
       }
     }
   }
+}
+
+void fieldStateChange (const int rows, const int cols, cell field[rows][cols]) {
+  for (int r = 0 ; r < rows ; r++) {
+      for (int c = 0 ; c < cols ; c++) {
+
+          field[r][c].current = field[r][c].next;
+      }
+  }
+}
+
+void clearNextField(const int rows, const int cols, cell field[rows][cols]) {
+
+    for (int r = 0 ; r < rows ; r++) {
+        for (int c = 0 ; c < cols ; c++) {
+            field[r][c].next = DEAD;
+        }
+    }
 }
 
 
@@ -309,42 +321,3 @@ void loadCustom(const int rows, const int cols, cell field[rows][cols]) {
         field[r][c].current = ALIVE;
     } while (getchar() != '\n');
 }
-
-
-/* Stupid pseudocode of what is probably more than one functions. */
-
-/* ATT: make sure it only counts inside the given field and not outside. */
-
-//void aliveNeighbourCount (const int rows, const int cols, cell field[rows][cols]) {
-//
-//  int aliveNeighbor;
-//
-//  for (int r = 0; r < rows; r++) {
-//    for (int c = 0; c < cols; c++) {
-//
-//      /*
-//      only read in aliveNeighbor if r+1 < rows (-1?) && c+1 < cols (-1?)
-//                                    r-1 > rows   (?) && c-1 > cols   (?)
-//
-//
-//      */
-//      /* aliveNeighbor = field[r][c].current ???*/
-//
-//      if (aliveNeighbor == (0 || 1)) {
-//        field[r][c].next = DEAD;
-//      }
-//
-//      else if (aliveNeighbor == (2 || 3)) {
-//        field[r][c].next = ALIVE;
-//      }
-//
-//      else if (aliveNeighbor >= 4 ) {
-//        field[r][c].next = DEAD;
-//      }
-//
-//      else if (aliveNeighbor == 3) {
-//        field[r][c].next = ALIVE;
-//      }
-//    }
-//  }
-//}
